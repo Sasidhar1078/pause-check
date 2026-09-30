@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: pause-and-check
+    runtime: python
+    plan: free
+    buildCommand: python -m unittest -v
+    startCommand: python app.py --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    autoDeploy: false

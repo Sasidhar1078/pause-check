@@ -1,0 +1,1308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a1020">
+  <meta name="description" content="A private, friendly scam-safety assistant for checking suspicious calls, messages, and links.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <title>Pause &amp; Check — A scam safety guide</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172b25;
+      --muted: #4b5e57;
+      --paper: #f5f8f4;
+      --surface: #ffffff;
+      --green: #176b4d;
+      --green-dark: #10543b;
+      --green-pale: #e6f3eb;
+      --gold-pale: #fff3d9;
+      --gold-ink: #684506;
+      --line: #d5e0d8;
+      --focus: #9a4d00;
+      --shadow: 0 8px 24px rgba(23, 43, 37, 0.07);
+      font-size: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 6rem; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+    }
+    button, a { font: inherit; }
+    a { color: var(--green-dark); text-underline-offset: 0.18em; }
+    a:hover { text-decoration-thickness: 2px; }
+    button {
+      min-height: 48px;
+      border: 2px solid var(--green);
+      border-radius: 12px;
+      padding: 0.55rem 0.9rem;
+      background: var(--surface);
+      color: var(--green-dark);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover { background: var(--green-pale); }
+    :focus-visible {
+      outline: 4px solid var(--focus);
+      outline-offset: 3px;
+    }
+    .skip-link {
+      position: absolute;
+      top: -5rem;
+      left: 1rem;
+      z-index: 10;
+      padding: 0.7rem 1rem;
+      background: var(--surface);
+      border: 2px solid var(--green);
+      border-radius: 8px;
+    }
+    .skip-link:focus { top: 1rem; }
+    .wrap { width: min(1100px, calc(100% - 2rem)); margin-inline: auto; }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: rgba(255, 255, 255, 0.97);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 1.2rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--green-pale);
+      font-size: 1.3rem;
+    }
+    nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.25rem 1rem; }
+    nav a { padding: 0.35rem 0; font-weight: 700; }
+    .tools {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      padding-bottom: 0.65rem;
+    }
+    .tools button { min-height: 42px; font-size: 0.88rem; }
+    .hero {
+      padding: clamp(2.4rem, 7vw, 5.4rem) 0 3rem;
+      background: linear-gradient(135deg, #e7f3eb 0%, #f5f8f4 68%);
+    }
+    .hero-grid { display: grid; grid-template-columns: 1.3fr 0.7fr; align-items: center; gap: 2rem; }
+    .eyebrow {
+      display: inline-block;
+      margin: 0 0 0.8rem;
+      color: var(--green-dark);
+      font-size: 0.88rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { max-width: 750px; margin: 0; font-size: clamp(2.25rem, 6vw, 4.25rem); letter-spacing: -0.04em; }
+    h2 { margin: 0 0 0.8rem; font-size: clamp(1.75rem, 4vw, 2.5rem); letter-spacing: -0.025em; }
+    h3 { margin: 0 0 0.45rem; font-size: 1.25rem; }
+    .hero p { max-width: 680px; margin: 1rem 0 1.4rem; font-size: 1.15rem; color: var(--muted); }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+    .primary-link {
+      display: inline-flex;
+      min-height: 52px;
+      align-items: center;
+      justify-content: center;
+      padding: 0.65rem 1.1rem;
+      border: 2px solid var(--green);
+      border-radius: 12px;
+      background: var(--green);
+      color: white;
+      font-weight: 800;
+      text-decoration: none;
+    }
+    .primary-link:hover { background: var(--green-dark); color: white; }
+    .hero-note {
+      padding: 1.5rem;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.8);
+      box-shadow: var(--shadow);
+    }
+    .hero-note strong { display: block; margin-bottom: 0.45rem; font-size: 1.2rem; }
+    .hero-note p { margin: 0; font-size: 1rem; }
+    main section { padding: clamp(2.7rem, 6vw, 4.5rem) 0; }
+    .section-intro { max-width: 720px; margin: 0 0 1.5rem; color: var(--muted); }
+    .steps-grid, .sign-grid, .response-grid { display: grid; gap: 1rem; }
+    .steps-grid { grid-template-columns: repeat(3, 1fr); }
+    .sign-grid { grid-template-columns: repeat(2, 1fr); }
+    .response-grid { grid-template-columns: repeat(3, 1fr); }
+    .card {
+      padding: 1.25rem;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .step-number {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      margin-bottom: 0.8rem;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--green-pale);
+      color: var(--green-dark);
+      font-weight: 800;
+    }
+    .card p { margin: 0; color: var(--muted); }
+    .checker-section { background: #eaf2ec; }
+    .checker {
+      max-width: 850px;
+      padding: clamp(1.2rem, 4vw, 2rem);
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    fieldset { margin: 0; padding: 0; border: 0; }
+    legend { margin-bottom: 0.9rem; font-size: 1.3rem; font-weight: 800; }
+    .check-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      padding: 0.8rem 0;
+      border-top: 1px solid var(--line);
+      cursor: pointer;
+    }
+    .check-option input { width: 24px; height: 24px; flex: 0 0 auto; margin: 0.15rem 0 0; accent-color: var(--green); }
+    .checker button { margin-top: 1rem; }
+    .tool-form { display: grid; gap: 0.75rem; }
+    .tool-form label { font-weight: 700; }
+    .tool-form input, .tool-form select {
+      width: 100%;
+      min-height: 54px;
+      border: 2px solid #73867d;
+      border-radius: 10px;
+      padding: 0.7rem 0.8rem;
+      background: var(--surface);
+      color: var(--ink);
+      font: inherit;
+    }
+    .tool-form button { justify-self: start; }
+    .tool-result {
+      margin-top: 1rem;
+      padding: 1rem 1.1rem;
+      border: 2px solid var(--line);
+      border-left: 7px solid var(--green);
+      border-radius: 10px;
+      background: var(--green-pale);
+    }
+    .tool-result.caution { border-left-color: #9a6500; background: var(--gold-pale); }
+    .tool-result.danger { border-left-color: #9a2d22; background: #fff0ed; }
+    .tool-result[hidden] { display: none; }
+    .tool-result h3 { margin-bottom: 0.35rem; }
+    .tool-result p { margin: 0.35rem 0 0; }
+    .call-steps { margin: 0.5rem 0 0; padding-left: 1.4rem; }
+    .call-steps li { margin: 0.45rem 0; }
+    .limitation { color: var(--muted); font-size: 0.95rem; }
+    .danger-text { color: #732016; }
+    .assistant-box {
+      max-width: 850px;
+      overflow: hidden;
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .assistant-header { padding: 1.25rem 1.5rem; background: var(--green-pale); }
+    .assistant-header h3 { margin: 0 0 0.35rem; }
+    .assistant-header p { margin: 0; color: var(--muted); }
+    .chat-log {
+      display: grid;
+      max-height: 440px;
+      gap: 0.8rem;
+      overflow-y: auto;
+      padding: 1rem 1.25rem;
+    }
+    .chat-message {
+      max-width: 92%;
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .chat-message.assistant { justify-self: start; background: var(--green-pale); }
+    .chat-message.person { justify-self: end; background: #f1f3f2; }
+    .chat-message p { margin: 0.4rem 0 0; }
+    .chat-form { padding: 1rem 1.25rem 1.25rem; border-top: 1px solid var(--line); }
+    .chat-form label { display: block; margin-bottom: 0.45rem; font-weight: 700; }
+    .chat-form textarea {
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+      border: 2px solid #73867d;
+      border-radius: 10px;
+      padding: 0.8rem;
+      background: var(--surface);
+      color: var(--ink);
+      font: inherit;
+    }
+    .chat-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.7rem; }
+    .chat-actions button[type="submit"] { background: var(--green); color: #fff; }
+    .chat-actions button[type="submit"]:hover { background: var(--green-dark); }
+    .result {
+      margin-top: 1.2rem;
+      padding: 1rem 1.1rem;
+      border-left: 6px solid var(--green);
+      border-radius: 8px;
+      background: var(--green-pale);
+    }
+    .result[hidden] { display: none; }
+    .result h3 { margin-bottom: 0.35rem; }
+    .result p { margin: 0; }
+    .result.warning { border-left-color: #9a6500; background: var(--gold-pale); }
+    .warning-box {
+      padding: 1.2rem 1.4rem;
+      border: 2px solid #d7aa50;
+      border-radius: 14px;
+      background: var(--gold-pale);
+      color: var(--gold-ink);
+    }
+    .warning-box p { margin: 0; }
+    .checklist { padding-left: 1.3rem; }
+    .checklist li { margin: 0.6rem 0; padding-left: 0.25rem; }
+    .contact-panel {
+      padding: clamp(1.3rem, 4vw, 2rem);
+      border-radius: 20px;
+      background: var(--green-dark);
+      color: white;
+    }
+    .contact-panel h2, .contact-panel h3 { color: white; }
+    .contact-panel p { max-width: 760px; }
+    .contact-panel a { color: white; }
+    .contact-panel .card {
+      margin-top: 1rem;
+      border-color: rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.1);
+      box-shadow: none;
+    }
+    .contact-panel .card p { color: white; }
+    .privacy-note { font-size: 0.95rem; opacity: 0.95; }
+    footer { padding: 1.5rem 0 2rem; border-top: 1px solid var(--line); color: var(--muted); }
+    footer p { margin: 0.35rem 0; }
+    .high-contrast {
+      --ink: #000000;
+      --muted: #171717;
+      --paper: #ffffff;
+      --surface: #ffffff;
+      --green: #004b27;
+      --green-dark: #003b20;
+      --green-pale: #e2ffe9;
+      --gold-pale: #fff1bf;
+      --gold-ink: #3d2900;
+      --line: #555555;
+      --focus: #a23b00;
+      --shadow: none;
+    }
+    @media (max-width: 760px) {
+      .topbar { align-items: flex-start; flex-direction: column; padding: 0.8rem 0; }
+      nav { justify-content: flex-start; gap: 0.2rem 0.9rem; }
+      .tools { justify-content: flex-start; flex-wrap: wrap; }
+      .hero-grid { grid-template-columns: 1fr; }
+      .steps-grid, .response-grid { grid-template-columns: 1fr; }
+      .sign-grid { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; }
+    }
+    :root {
+      --ink: #18312d;
+      --muted: #4e625c;
+      --paper: #f6f8f5;
+      --surface: #ffffff;
+      --green: #176b4d;
+      --green-dark: #104b3a;
+      --green-pale: #e7f2eb;
+      --gold-pale: #fff4da;
+      --gold-ink: #684506;
+      --line: #d8e2dc;
+      --focus: #985000;
+      --shadow: 0 12px 34px rgba(24, 49, 45, 0.08);
+    }
+    body { font-family: "Segoe UI", Arial, Helvetica, sans-serif; }
+    header { background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(14px); }
+    .topbar { padding-block: 0.5rem; }
+    .brand-mark { background: var(--green); color: #fff; }
+    nav { gap: 0.25rem; }
+    nav a {
+      border-radius: 999px;
+      padding: 0.35rem 0.7rem;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    nav a:hover { background: var(--green-pale); text-decoration: none; }
+    .tools { justify-content: flex-start; padding-top: 0.25rem; }
+    .tools button { border-radius: 999px; }
+    .download-link {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--green);
+      border-radius: 999px;
+      padding: 0.4rem 0.85rem;
+      background: var(--surface);
+      color: var(--green-dark);
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .download-link:hover { border-color: #2864f0; background: #edf3ff; }
+    .display-tools { position: relative; }
+    .display-tools summary {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      border: 2px solid var(--green);
+      border-radius: 999px;
+      padding: 0.4rem 0.85rem;
+      background: var(--surface);
+      color: var(--green-dark);
+      font-weight: 700;
+      cursor: pointer;
+      list-style: none;
+    }
+    .display-tools summary::-webkit-details-marker { display: none; }
+    .display-options { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0.5rem 0; }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding-block: clamp(3.5rem, 8vw, 6.5rem);
+      background:
+        radial-gradient(ellipse at 88% 4%, rgba(202, 229, 211, 0.8), transparent 35%),
+        linear-gradient(135deg, #edf5ef 0%, #f7f9f6 76%);
+    }
+    .hero-grid { grid-template-columns: 1.15fr 0.85fr; gap: clamp(2rem, 6vw, 5rem); }
+    h1 { max-width: 720px; font-weight: 800; }
+    .hero p { color: var(--muted); }
+    .hero-note {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(1.5rem, 4vw, 2.3rem);
+      border: 0;
+      border-radius: 28px;
+      background: var(--green-dark);
+      color: #fff;
+      box-shadow: 0 22px 55px rgba(16, 75, 58, 0.2);
+    }
+    .hero-note::after {
+      position: absolute;
+      right: -35px;
+      bottom: -65px;
+      width: 190px;
+      height: 190px;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 50%;
+      box-shadow: 0 0 0 24px rgba(255,255,255,0.04), 0 0 0 48px rgba(255,255,255,0.035);
+      content: "";
+    }
+    .hero-note strong { font-size: 1.35rem; }
+    .hero-note p { position: relative; z-index: 1; color: #f0f7f2; }
+    main section:not(.hero) { padding-block: clamp(3rem, 6vw, 5rem); }
+    main section:nth-of-type(even):not(.checker-section) { background: #fff; }
+    .eyebrow { letter-spacing: 0.09em; }
+    h2 { font-weight: 800; }
+    .steps-grid, .sign-grid, .response-grid { align-items: stretch; }
+    .card {
+      height: 100%;
+      border-radius: 20px;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(24, 49, 45, 0.12); }
+    .step-number { width: 48px; height: 48px; }
+    .checker-section { background: #edf4ef; }
+    .checker, .assistant-box {
+      max-width: 920px;
+      border-radius: 24px;
+      box-shadow: 0 16px 42px rgba(24, 49, 45, 0.09);
+    }
+    .tool-form button, .checker button, .chat-actions button { min-height: 54px; }
+    .primary-link { border-radius: 999px; padding-inline: 1.35rem; }
+    .warning-box { border-radius: 18px; }
+    .contact-panel { border-radius: 28px; padding: clamp(1.6rem, 5vw, 3rem); }
+    footer { background: #eff3ef; }
+    @media (max-width: 760px) {
+      .topbar { gap: 0.5rem; }
+      nav {
+        width: 100%;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        gap: 0.25rem;
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+        scrollbar-width: thin;
+      }
+      nav a { flex: 0 0 auto; }
+      .tools { flex-wrap: nowrap; gap: 0.4rem; }
+      .tools > button, .display-tools summary, .download-link { padding-inline: 0.65rem; font-size: 0.84rem; }
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-note { max-width: 600px; }
+      .steps-grid, .response-grid, .sign-grid { grid-template-columns: 1fr; }
+      .card { height: auto; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .card { transition: none; }
+      .card:hover { transform: none; }
+    }
+    :root {
+      color-scheme: light;
+      --ink: #111827;
+      --muted: #526077;
+      --paper: #f4f7fc;
+      --surface: #ffffff;
+      --green: #2864f0;
+      --green-dark: #101a2e;
+      --green-pale: #eaf1ff;
+      --gold-pale: #fff5dd;
+      --gold-ink: #624710;
+      --line: #dae2ee;
+      --focus: #075bea;
+      --shadow: 0 12px 34px rgba(16, 26, 46, 0.08);
+    }
+    body { background: var(--paper); color: var(--ink); }
+    header {
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom-color: rgba(145, 160, 184, 0.24);
+      box-shadow: 0 4px 24px rgba(16, 26, 46, 0.045);
+    }
+    .brand { color: #101a2e; }
+    .brand-mark {
+      border-radius: 14px;
+      background: linear-gradient(145deg, #4684ff, #2055dc);
+      color: #fff;
+      box-shadow: 0 7px 16px rgba(40, 100, 240, 0.24);
+    }
+    nav a { color: #27334a; }
+    nav a:hover { background: #edf3ff; color: #1e4fc4; }
+    button { transition: background 150ms ease, border-color 150ms ease, transform 150ms ease; }
+    button:hover { border-color: #2864f0; }
+    button:active { transform: translateY(1px); }
+    .tools > button, .display-tools summary { border-color: #c8d5ea; color: #253450; }
+    .tools > button:hover, .display-tools summary:hover { background: #edf3ff; border-color: #2864f0; }
+    .hero {
+      overflow: hidden;
+      color: #f6f8ff;
+      background:
+        radial-gradient(ellipse at 76% 5%, rgba(53, 103, 216, 0.38), transparent 34%),
+        radial-gradient(ellipse at 12% 100%, rgba(29, 78, 160, 0.2), transparent 38%),
+        linear-gradient(130deg, #090f1e 0%, #111b31 62%, #0b1528 100%);
+    }
+    .hero .eyebrow { color: #91b5ff; }
+    .hero h1 { max-width: 760px; text-wrap: balance; }
+    .hero > .wrap > div > p:not(.eyebrow) { color: #c7d2e4; }
+    .hero .primary-link { border-color: #3974f6; background: #3974f6; box-shadow: 0 10px 26px rgba(43, 102, 239, 0.25); }
+    .hero .primary-link:hover { border-color: #5d8dff; background: #245ddb; }
+    .hero .primary-link[style] {
+      border-color: rgba(194, 211, 239, 0.48) !important;
+      background: rgba(255,255,255,0.07) !important;
+      color: #eff4ff !important;
+    }
+    .hero .primary-link[style]:hover { background: rgba(255,255,255,0.15) !important; }
+    .hero-note {
+      border: 1px solid rgba(159, 184, 231, 0.24);
+      background: linear-gradient(145deg, rgba(41, 67, 119, 0.7), rgba(20, 32, 56, 0.92));
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.26);
+      backdrop-filter: blur(10px);
+    }
+    .hero-note strong { color: #fff; }
+    .hero-note p { color: #d9e3f4; }
+    .eyebrow { color: #2457c9; }
+    .section-intro, .card p { color: #536078; }
+    main section:nth-of-type(even):not(.checker-section) { background: #fff; }
+    .card {
+      border-color: #e1e7f0;
+      box-shadow: 0 8px 24px rgba(19, 35, 64, 0.045);
+    }
+    .card:hover { box-shadow: 0 16px 36px rgba(27, 67, 145, 0.12); }
+    .step-number {
+      background: linear-gradient(145deg, #e9f0ff, #dce8ff);
+      color: #2459ce;
+    }
+    .checker-section { background: linear-gradient(145deg, #edf3fc, #e9eff9); }
+    .checker, .assistant-box {
+      border-color: #e0e7f1;
+      background: #fff;
+      box-shadow: 0 18px 50px rgba(16, 33, 66, 0.09);
+    }
+    .assistant-box { overflow: hidden; }
+    .assistant-header {
+      position: relative;
+      padding: 1.5rem clamp(1.2rem, 4vw, 2rem);
+      background:
+        radial-gradient(circle at 92% 0%, rgba(108, 155, 255, 0.27), transparent 30%),
+        linear-gradient(120deg, #101a2e, #172747);
+    }
+    .assistant-header h3 { margin-top: 0.55rem; color: #fff; font-size: 1.55rem; }
+    .assistant-header p { max-width: 760px; color: #d3dced; }
+    .assistant-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1px solid rgba(186, 210, 255, 0.3);
+      border-radius: 999px;
+      padding: 0.3rem 0.7rem;
+      background: rgba(255,255,255,0.08);
+      color: #e0eaff;
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+    .status-dot { width: 9px; height: 9px; border-radius: 50%; background: #6be0b1; box-shadow: 0 0 12px rgba(107, 224, 177, 0.7); }
+    .chat-log { min-height: 215px; padding: 1.3rem clamp(1rem, 4vw, 1.75rem); background: #f8faff; }
+    .chat-message { border-color: #e0e7f2; border-radius: 8px 18px 18px 18px; box-shadow: 0 5px 15px rgba(16, 33, 66, 0.035); }
+    .chat-message.assistant { background: #fff; }
+    .chat-message.person { border-color: #cbdcff; border-radius: 18px 8px 18px 18px; background: #eaf1ff; }
+    .chat-message strong { color: #263c67; }
+    .chat-form { background: #fff; }
+    .chat-form textarea, .tool-form input, .tool-form select {
+      border-color: #cbd5e4;
+      border-radius: 14px;
+    }
+    .chat-form textarea:focus, .tool-form input:focus, .tool-form select:focus {
+      border-color: #3974f6;
+      outline: 3px solid rgba(57, 116, 246, 0.18);
+    }
+    .chat-actions button[type="submit"], .tool-form button, .checker button[type="submit"] {
+      border-color: #2864f0;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3978f7, #2458d5);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(40, 100, 240, 0.19);
+    }
+    .chat-actions button[type="submit"]:hover, .tool-form button:hover, .checker button[type="submit"]:hover {
+      border-color: #1748bd;
+      background: #1f53cb;
+    }
+    .contact-panel {
+      background:
+        radial-gradient(circle at 95% 5%, rgba(79, 131, 240, 0.35), transparent 35%),
+        linear-gradient(135deg, #101a2e, #101c34);
+      box-shadow: 0 18px 48px rgba(16, 26, 46, 0.14);
+    }
+    .contact-panel .eyebrow { color: #9bbaff !important; }
+    .warning-box { border-color: #e7cf96; }
+    footer { border-color: #dce4ef; background: #edf1f7; }
+    .high-contrast {
+      --ink: #000;
+      --muted: #151515;
+      --paper: #fff;
+      --surface: #fff;
+      --green: #004ed0;
+      --green-dark: #001844;
+      --green-pale: #e7efff;
+      --gold-pale: #fff1bf;
+      --gold-ink: #3d2900;
+      --line: #555;
+      --focus: #a23b00;
+      --shadow: none;
+    }
+    .high-contrast .hero,
+    .high-contrast .assistant-header,
+    .high-contrast .contact-panel { background: #000; }
+    .high-contrast .hero h1, .high-contrast .hero p,
+    .high-contrast .assistant-header h3, .high-contrast .assistant-header p,
+    .high-contrast .contact-panel h2, .high-contrast .contact-panel h3,
+    .high-contrast .contact-panel p { color: #fff; }
+    @media (max-width: 760px) {
+      .hero { padding-block: 3.6rem 3rem; }
+      .hero h1 { font-size: clamp(2.35rem, 11vw, 3.45rem); }
+      .hero-actions { display: grid; grid-template-columns: 1fr; }
+      .hero-actions .primary-link { width: 100%; }
+      .assistant-status { font-size: 0.78rem; }
+    }
+    @media (max-width: 760px) {
+      .tools { position: relative; flex-wrap: wrap; }
+      .tools > button, .download-link { white-space: nowrap; }
+      .display-options {
+        position: absolute;
+        top: calc(100% + 0.4rem);
+        right: 0;
+        z-index: 8;
+        display: grid;
+        width: min(310px, calc(100vw - 2rem));
+        padding: 0.7rem;
+        border: 1px solid #cfdaea;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 16px 38px rgba(16, 26, 46, 0.18);
+      }
+      .display-options button { width: 100%; min-height: 48px; text-align: left; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      button { transition: none; }
+      button:active { transform: none; }
+    }
+    .hero .eyebrow { display: inline-flex; align-items: center; gap: 0.55rem; }
+    .hero .status-dot { flex: 0 0 auto; }
+    #assistant { background: linear-gradient(180deg, #edf3fc 0%, #f5f7fb 100%); }
+    .assistant-box {
+      max-width: 960px;
+      border: 1px solid #dce5f2;
+      border-radius: 26px;
+    }
+    .chat-log { max-height: min(48vh, 460px); }
+    .suggestion-list {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.2rem clamp(1rem, 4vw, 1.75rem) 1rem;
+      background: #f8faff;
+    }
+    .suggestion-list > span {
+      margin-right: 0.15rem;
+      color: #66738a;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+    .suggestion-chip {
+      min-height: 42px;
+      border-width: 1px;
+      border-color: #cad8ef;
+      border-radius: 999px;
+      padding: 0.4rem 0.75rem;
+      background: #fff;
+      color: #2e4e87;
+      font-size: 0.9rem;
+    }
+    .suggestion-chip:hover { background: #eaf1ff; }
+    @media (max-width: 760px) {
+      .suggestion-list > span { flex-basis: 100%; }
+      .suggestion-chip { min-height: 46px; }
+      .assistant-box { border-radius: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header>
+    <div class="wrap">
+      <div class="topbar">
+        <a class="brand" href="#assistant" aria-label="Pause and Check home">
+          <span class="brand-mark" aria-hidden="true">✓</span>
+          <span>Pause &amp; Check</span>
+        </a>
+        <nav aria-label="Main navigation">
+          <a href="#assistant">Scam assistant</a>
+          <a href="#link-check">Check a link</a>
+          <a href="#steps">What to do</a>
+          <a href="#signs">Warning signs</a>
+          <a href="#block-calls">Block calls</a>
+          <a href="#checker">Check a message</a>
+          <a href="#help">Get help</a>
+        </nav>
+      </div>
+      <div class="tools">
+        <a class="download-link" href="./index.html" download="Pause-and-Check.html" aria-label="Download the standalone Pause and Check page">↓ Download to this device</a>
+        <button type="button" id="install-button">Add to Home Screen</button>
+        <details class="display-tools">
+          <summary>Text &amp; display</summary>
+          <div class="display-options" aria-label="Reading and display settings">
+            <button type="button" id="text-smaller" aria-label="Make text smaller">A− Smaller text</button>
+            <button type="button" id="text-larger" aria-label="Make text larger">A+ Larger text</button>
+            <button type="button" id="contrast-toggle" aria-pressed="false">High contrast</button>
+            <button type="button" id="read-button">🔊 Read this page</button>
+          </div>
+        </details>
+      </div>
+      <p id="install-status" class="limitation" role="status" aria-live="polite" hidden></p>
+    </div>
+  </header>
+
+  <main id="main">
+    <section id="assistant" class="checker-section">
+      <div class="wrap">
+        <p class="eyebrow">Your calm, private safety assistant</p>
+        <h2>Let’s check it together</h2>
+        <p class="section-intro">Tell me what happened. I’ll look for common scam warning signs and suggest a safer next step—without judging you.</p>
+        <div class="assistant-box">
+          <div class="assistant-header">
+            <span class="assistant-status"><span class="status-dot" aria-hidden="true"></span> Private check · on this device</span>
+            <h3>Pause &amp; Check assistant</h3>
+            <p>Your message stays on this device. This demo uses simple safety rules, not a connected AI service. Please leave out names, passwords, PINs, and verification codes.</p>
+          </div>
+          <div id="assistant-chat" class="chat-log" role="log" aria-live="polite" aria-relevant="additions">
+            <div class="chat-message assistant">
+              <strong>Pause &amp; Check</strong>
+              <p>You can describe what happened, for example: “The caller said my bank account is blocked and asked me to read out a code.” I cannot identify callers, verify links, or block calls.</p>
+            </div>
+          </div>
+          <div class="suggestion-list" aria-label="Try an example">
+            <span>Try an example</span>
+            <button type="button" class="suggestion-chip" data-prompt="A caller said my bank account is blocked and asked me to share a one-time code.">They asked for a code</button>
+            <button type="button" class="suggestion-chip" data-prompt="I received an unexpected message asking me to click a link immediately.">I received a link</button>
+            <button type="button" class="suggestion-chip" data-prompt="Someone is pressuring me to send money or buy gift cards.">They want money</button>
+          </div>
+          <form id="assistant-form" class="chat-form">
+            <label for="assistant-input">What did the caller or message say?</label>
+            <textarea id="assistant-input" name="message" maxlength="2000" placeholder="Describe what happened here. Leave out private details." aria-describedby="assistant-help"></textarea>
+            <p id="assistant-help" class="limitation">Up to 2,000 characters. Never include passwords, PINs, one-time codes, or bank details.</p>
+            <div class="chat-actions">
+              <button type="submit">Check this for me</button>
+              <button type="reset">Clear what I typed</button>
+            </div>
+          </form>
+        </div>
+        <p class="limitation"><strong>A helpful reminder:</strong> This assistant uses simple on-device checks, not a live AI model. It can miss scams and cannot confirm a message, person, or link is genuine. If there is pressure to pay or share a code, stop and verify using a number you trust.</p>
+      </div>
+    </section>
+
+    <section class="hero" id="top">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Your private safety assistant</p>
+          <h1>Worried about a call, message, or link?</h1>
+          <p>Tell me what happened. We’ll look for warning signs together, one simple step at a time.</p>
+          <div class="hero-actions">
+            <a class="primary-link" href="#assistant">Start a private check <span aria-hidden="true">→</span></a>
+            <a class="primary-link" href="#link-check" style="background: transparent; color: var(--green-dark);">Check a web link</a>
+          </div>
+        </div>
+        <aside class="hero-note" aria-label="The most important safety rule">
+          <strong>Remember this first</strong>
+          <p>A real bank, government office, or trusted company will not ask you to tell them a password, PIN, or one-time code. If you feel rushed, stop and check another way.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="steps">
+      <div class="wrap">
+        <p class="eyebrow">Three simple steps</p>
+        <h2>What to do when something feels wrong</h2>
+        <p class="section-intro">You are allowed to take your time. A caller who is genuine will understand if you hang up and check.</p>
+        <div class="steps-grid">
+          <article class="card">
+            <span class="step-number" aria-hidden="true">1</span>
+            <h3>Pause</h3>
+            <p>Do not reply, click a link, share a code, or send money while you feel pressured. End the call if you need to.</p>
+          </article>
+          <article class="card">
+            <span class="step-number" aria-hidden="true">2</span>
+            <h3>Check independently</h3>
+            <p>Use a phone number on your bank card or official paperwork, or type the known website address yourself. Do not use the number or link in the suspicious message.</p>
+          </article>
+          <article class="card">
+            <span class="step-number" aria-hidden="true">3</span>
+            <h3>Ask someone you trust</h3>
+            <p>Call a family member, friend, or caregiver using a number you already have. It is sensible to get a second opinion.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="signs">
+      <div class="wrap">
+        <p class="eyebrow">Know the warning signs</p>
+        <h2>Scams often try to rush or frighten you</h2>
+        <p class="section-intro">One warning sign is enough reason to stop and verify. Caller ID, a familiar logo, or a person’s voice is not proof by itself.</p>
+        <div class="sign-grid">
+          <article class="card">
+            <h3>They demand secrecy or speed</h3>
+            <p>“Act now,” “Do not tell anyone,” or “Your account will be blocked” are common pressure tactics.</p>
+          </article>
+          <article class="card">
+            <h3>They ask for private information</h3>
+            <p>Never share your password, PIN, card security code, or one-time code with someone who contacts you.</p>
+          </article>
+          <article class="card">
+            <h3>They want an unusual payment</h3>
+            <p>Be wary of requests for gift cards, cryptocurrency, cash collection, or a transfer to a “safe account.”</p>
+          </article>
+          <article class="card">
+            <h3>They send an unexpected link or attachment</h3>
+            <p>A message may pretend to be from a delivery service, bank, government office, or someone you know. Check through a separate, trusted route.</p>
+          </article>
+        </div>
+        <div class="warning-box" style="margin-top: 1rem;">
+          <p><strong>Important:</strong> Scammers can fake a phone number, copy a company logo, and make a message sound personal. If in doubt, stop the conversation and contact the organisation or person yourself.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="checker-section" id="link-check">
+      <div class="wrap">
+        <p class="eyebrow">Check before you tap</p>
+        <h2>Check a link for common warning signs</h2>
+        <p class="section-intro">Paste or type the web address below. The Python service checks common warning signs only; it never opens or looks up the link, and it does not save it. If the service is unavailable, a basic check runs on this device.</p>
+        <div class="checker">
+          <form class="tool-form" id="link-form">
+            <label for="link-input">Web address (URL)</label>
+            <input id="link-input" name="url" type="text" inputmode="url" autocomplete="url" placeholder="For example: https://example.com" spellcheck="false" aria-describedby="link-help">
+            <p id="link-help" class="limitation">Do not include passwords, account details, or private information. If you are unsure, ask someone you trust before opening it.</p>
+            <button type="submit">Check warning signs</button>
+          </form>
+          <div id="link-result" class="tool-result" role="status" aria-live="polite" tabindex="-1" hidden>
+            <h3 id="link-result-title"></h3>
+            <p id="link-result-copy"></p>
+            <ul id="link-reasons"></ul>
+          </div>
+          <p class="limitation"><strong>Please note:</strong> This is a basic check of the address only. It does not look up scam reports or prove a site is safe. A familiar-looking address can still be fraudulent. When in doubt, do not open it; visit the organisation’s known website yourself.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="block-calls">
+      <div class="wrap">
+        <p class="eyebrow">Stop unwanted callers</p>
+        <h2>How to block a number on your phone</h2>
+        <p class="section-intro">This website cannot stop or block calls on your phone. Follow the steps below on the phone itself. Menu names can vary a little by phone model.</p>
+        <div class="checker">
+          <form class="tool-form" id="call-help-form">
+            <label for="phone-type">Choose the kind of phone</label>
+            <select id="phone-type" name="phone-type">
+              <option value="android">Android phone</option>
+              <option value="iphone">iPhone</option>
+            </select>
+            <button type="submit">Show me how to block a caller</button>
+          </form>
+          <div id="call-result" class="tool-result" role="status" aria-live="polite" tabindex="-1" hidden>
+            <h3 id="call-result-title"></h3>
+            <ol id="call-steps" class="call-steps"></ol>
+          </div>
+          <div class="warning-box" style="margin-top: 1rem;">
+            <p><strong>Before blocking:</strong> If the caller claims to be your bank or a government office, do not call back using their number. Find the official number independently. Blocking a number may not stop scammers who call from a different number.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="checker-section" id="checker">
+      <div class="wrap">
+        <p class="eyebrow">A private self-check</p>
+        <h2>Does this call or message have warning signs?</h2>
+        <p class="section-intro">Tick anything that applies. This check stays on your device; it does not send your answers anywhere. It cannot prove whether a message is genuine.</p>
+        <div class="checker">
+          <form id="check-form">
+            <fieldset>
+              <legend>Did they do any of these things?</legend>
+              <label class="check-option"><input type="checkbox" name="sign"> Ask me to act immediately or keep it secret</label>
+              <label class="check-option"><input type="checkbox" name="sign"> Ask for a password, PIN, or one-time code</label>
+              <label class="check-option"><input type="checkbox" name="sign"> Ask me to send money, buy gift cards, or move money</label>
+              <label class="check-option"><input type="checkbox" name="sign"> Send an unexpected link or attachment</label>
+              <label class="check-option"><input type="checkbox" name="sign"> Contact me unexpectedly while pretending to be an organisation or relative</label>
+            </fieldset>
+            <button type="submit">Show my next step</button>
+            <button type="reset">Clear my answers</button>
+          </form>
+          <div id="check-result" class="result" role="status" aria-live="polite" tabindex="-1" hidden>
+            <h3 id="result-title"></h3>
+            <p id="result-copy"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="already-responded">
+      <div class="wrap">
+        <p class="eyebrow">If you already replied</p>
+        <h2>Act quickly, and remember: it is not your fault</h2>
+        <p class="section-intro">If you shared information, clicked a link, or sent money, taking action quickly can help. You do not need to feel embarrassed to ask for help.</p>
+        <div class="response-grid">
+          <article class="card">
+            <h3>If you shared bank details or sent money</h3>
+            <p>Call your bank using the number on your card or statement. Ask them to secure your account and explain the payment. Contact your local police or official fraud-reporting service.</p>
+          </article>
+          <article class="card">
+            <h3>If you shared a password or code</h3>
+            <p>Use the official app or website to change the password. If you reuse it elsewhere, change it there too. Contact the relevant organisation using a trusted number.</p>
+          </article>
+          <article class="card">
+            <h3>If you clicked a link or installed an app</h3>
+            <p>Do not enter more information. If you installed an app at their request, ask a trusted person or your device provider to help remove it and check your device.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="help">
+      <div class="wrap">
+        <div class="contact-panel">
+          <p class="eyebrow" style="color: #c6f0d4;">Get support</p>
+          <h2>It is okay to ask for help</h2>
+          <p>Contact your bank using a number printed on your card or statement. You can also speak with a trusted family member, friend, caregiver, or local community support service.</p>
+          <div class="card">
+            <h3>If you are in India</h3>
+            <p>If money has been lost to an online financial fraud, contact your bank promptly and report it to the National Cyber Crime Helpline by calling <strong>1930</strong>. You can also use the official portal at <a href="https://cybercrime.gov.in/" target="_blank" rel="noopener noreferrer">cybercrime.gov.in</a>. Use official channels; do not pay anyone who promises to recover your money.</p>
+          </div>
+          <div class="card">
+            <h3>Open it on a phone, tablet, or computer</h3>
+            <p>For one shared address, open the hosted HTTPS website in any current browser. To keep an offline copy, choose <strong>Download to this device</strong>, then open <strong>Pause-and-Check.html</strong> in a browser. The downloaded page includes the safety chat and basic link check; it does not need Python. Installing it as an app is optional and requires the hosted website.</p>
+          </div>
+          <p class="privacy-note">This guide offers general safety information, not an official verification service. It does not contact your bank or check a phone number, link, or message for you.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p><strong>Pause &amp; Check</strong> — clear steps for safer calls, links, and messages.</p>
+      <p>You deserve time to check. When in doubt, stop and contact someone you trust.</p>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const form = document.getElementById("check-form");
+      const result = document.getElementById("check-result");
+      const resultTitle = document.getElementById("result-title");
+      const resultCopy = document.getElementById("result-copy");
+      const readButton = document.getElementById("read-button");
+      const linkForm = document.getElementById("link-form");
+      const linkResult = document.getElementById("link-result");
+      const linkResultTitle = document.getElementById("link-result-title");
+      const linkResultCopy = document.getElementById("link-result-copy");
+      const linkReasons = document.getElementById("link-reasons");
+      const callHelpForm = document.getElementById("call-help-form");
+      const callResult = document.getElementById("call-result");
+      const callResultTitle = document.getElementById("call-result-title");
+      const callSteps = document.getElementById("call-steps");
+      const assistantForm = document.getElementById("assistant-form");
+      const assistantInput = document.getElementById("assistant-input");
+      const assistantChat = document.getElementById("assistant-chat");
+      const suggestionButtons = document.querySelectorAll(".suggestion-chip");
+      const installButton = document.getElementById("install-button");
+      const installStatus = document.getElementById("install-status");
+      let pendingInstallPrompt = null;
+      let fontSize = 18;
+
+      document.getElementById("text-larger").addEventListener("click", () => {
+        fontSize = Math.min(fontSize + 2, 26);
+        root.style.fontSize = `${fontSize}px`;
+      });
+
+      document.getElementById("text-smaller").addEventListener("click", () => {
+        fontSize = Math.max(fontSize - 2, 16);
+        root.style.fontSize = `${fontSize}px`;
+      });
+
+      document.getElementById("contrast-toggle").addEventListener("click", (event) => {
+        const enabled = document.body.classList.toggle("high-contrast");
+        event.currentTarget.setAttribute("aria-pressed", String(enabled));
+      });
+
+      const isStandalone = window.matchMedia("(display-mode: standalone)").matches
+        || window.navigator.standalone === true;
+      if (isStandalone) {
+        installButton.hidden = true;
+        installStatus.hidden = false;
+        installStatus.textContent = "Pause & Check is installed on this device.";
+      }
+
+      window.addEventListener("beforeinstallprompt", (event) => {
+        event.preventDefault();
+        pendingInstallPrompt = event;
+      });
+
+      installButton.addEventListener("click", async () => {
+        installStatus.hidden = false;
+        const isAppleMobile = /iphone|ipad|ipod/i.test(navigator.userAgent)
+          || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        if (window.location.protocol === "file:") {
+          installStatus.textContent = "This downloaded copy works offline in your browser. To install it as an app or share one web address, open the hosted HTTPS website.";
+          return;
+        }
+        if (pendingInstallPrompt) {
+          pendingInstallPrompt.prompt();
+          const choice = await pendingInstallPrompt.userChoice;
+          installStatus.textContent = choice.outcome === "accepted"
+            ? "The app was added to your device."
+            : "No problem. You can keep using this page in your browser.";
+          pendingInstallPrompt = null;
+          return;
+        }
+        if (window.navigator.standalone === true) {
+          installStatus.textContent = "Pause & Check is already added to your Home Screen.";
+        } else if (isAppleMobile) {
+          installStatus.textContent = "To add this app: tap Share in Safari, then choose Add to Home Screen.";
+        } else if (/android/i.test(navigator.userAgent)) {
+          installStatus.textContent = "To add this app: open your browser menu and choose Install app or Add to Home screen. If you do not see that option, open this page in Chrome over a secure website connection.";
+        } else {
+          installStatus.textContent = "Open this page in a supported mobile browser and choose Install app or Add to Home screen. Installation requires this site to be hosted securely (HTTPS).";
+        }
+      });
+
+      window.addEventListener("appinstalled", () => {
+        installButton.hidden = true;
+        installStatus.hidden = false;
+        installStatus.textContent = "Pause & Check was installed successfully.";
+      });
+
+      if ("serviceWorker" in navigator && window.location.protocol !== "file:") {
+        navigator.serviceWorker.register("./service-worker.js").catch((error) => {
+          installStatus.hidden = false;
+          installStatus.textContent = "The app could not prepare offline access. You can still use it while connected. Please check that the website is hosted securely.";
+          console.error("Service worker registration failed:", error);
+        });
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const hasWarning = form.querySelector('input[name="sign"]:checked') !== null;
+        result.hidden = false;
+        result.classList.toggle("warning", hasWarning);
+        resultTitle.textContent = hasWarning ? "Stop and check before you respond." : "No boxes checked? Still take your time.";
+        resultCopy.textContent = hasWarning
+          ? "These are warning signs. Do not click, reply, share a code, or send money. Contact the person or organisation using a phone number or website you find independently. This check cannot confirm whether a message is genuine."
+          : "A message can still be a scam even if none of these signs are obvious. If you were not expecting it, verify it through a trusted phone number or website before you reply or click.";
+        result.focus();
+      });
+
+      form.addEventListener("reset", () => {
+        result.hidden = true;
+        result.classList.remove("warning");
+      });
+
+      function checkLinkLocally(rawValue) {
+        let address;
+        try {
+          if (/\s/.test(rawValue)) throw new TypeError("Whitespace is not allowed in a web address.");
+          address = new URL(/^[a-zA-Z][a-zA-Z\d+.-]*:/.test(rawValue) ? rawValue : `https://${rawValue}`);
+          if (!["https:", "http:"].includes(address.protocol) || !address.hostname) {
+            throw new TypeError("This is not a web link.");
+          }
+        } catch {
+          return { valid: false, reasons: [] };
+        }
+
+        const host = address.hostname.toLowerCase();
+        const reasons = [];
+        if (address.protocol === "http:") reasons.push("It does not use HTTPS, so the connection is not encrypted.");
+        if (address.username || address.password) reasons.push("It contains sign-in details before the website name, which can be used to disguise where a link goes.");
+        if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(host)) reasons.push("It uses a numeric address instead of a recognisable website name.");
+        if (host.startsWith("xn--") || host.split(".").some((part) => part.startsWith("xn--"))) reasons.push("The website name uses encoded characters that can make look-alike names harder to spot.");
+        if (host.length > 50) reasons.push("The website name is unusually long.");
+        if (/(^|\.)(bit\.ly|tinyurl\.com|t\.co|goo\.gl|ow\.ly|is\.gd)$/i.test(host)) reasons.push("It uses a shortened-link service, so the destination is hidden.");
+        if (/%[0-9a-f]{2}/i.test(address.pathname) && address.pathname.length > 70) reasons.push("The link contains a long, encoded path that is difficult to inspect.");
+        return { valid: true, reasons };
+      }
+
+      function showLinkAssessment(assessment, localFallback) {
+        const reasons = assessment.reasons || assessment.warning_signs || [];
+        const hasWarning = reasons.length > 0;
+        linkResult.classList.toggle("danger", reasons.length > 1);
+        linkResult.classList.toggle("caution", reasons.length === 1 || !assessment.valid);
+        if (!assessment.valid) {
+          linkResultTitle.textContent = "This does not look like a valid web address.";
+          linkResultCopy.textContent = "Do not open it. Check with the person who sent it using a separate, trusted way.";
+        } else if (hasWarning) {
+          linkResultTitle.textContent = reasons.length > 1 ? "Several warning signs found. Do not open this link." : "A warning sign was found. Check before opening.";
+          linkResultCopy.textContent = "This is not proof that the link is a scam, but it is safest not to tap it. Contact the sender or organisation another way.";
+        } else {
+          linkResultTitle.textContent = "No obvious warning signs found in the address.";
+          linkResultCopy.textContent = "This does not mean the website is safe or genuine. Do not use a link you were not expecting; find the organisation’s known website or phone number yourself.";
+        }
+        if (localFallback) {
+          linkResultCopy.textContent += " The website service could not be reached, so this was only a basic check on your device.";
+        }
+        reasons.forEach((reason) => {
+          const item = document.createElement("li");
+          item.textContent = reason;
+          linkReasons.append(item);
+        });
+      }
+
+      linkForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const input = document.getElementById("link-input");
+        const rawValue = input.value.trim();
+        linkResult.hidden = false;
+        linkReasons.replaceChildren();
+        linkResult.classList.remove("caution", "danger");
+
+        if (!rawValue) {
+          linkResult.classList.add("caution");
+          linkResultTitle.textContent = "Enter a web address to check.";
+          linkResultCopy.textContent = "This check cannot confirm whether any site is genuine or safe.";
+          linkResult.focus();
+          return;
+        }
+
+        let assessment;
+        let localFallback = false;
+        if (window.location.protocol === "file:") {
+          assessment = checkLinkLocally(rawValue);
+          localFallback = true;
+        } else {
+          try {
+            const response = await fetch("./api/link-check", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ url: rawValue })
+            });
+            const data = await response.json();
+            if (!response.ok) {
+              assessment = { valid: false, reasons: [] };
+            } else {
+              assessment = { valid: true, warning_signs: data.warning_signs };
+            }
+          } catch (error) {
+            console.warn("Link-check service unavailable; using the on-device check.", error);
+            assessment = checkLinkLocally(rawValue);
+            localFallback = true;
+          }
+        }
+        showLinkAssessment(assessment, localFallback);
+        linkResult.focus();
+      });
+
+      callHelpForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const isIphone = document.getElementById("phone-type").value === "iphone";
+        const steps = isIphone
+          ? [
+              "Open the Phone app and tap Recents.",
+              "Find the number and tap the information button (ⓘ) beside it.",
+              "Scroll down and tap Block this Caller, then confirm."
+            ]
+          : [
+              "Open the Phone app and tap Recents or Call history.",
+              "Tap the unwanted number or call, then choose Block or Report spam. On some phones, press and hold the number first.",
+              "Confirm the choice. If you cannot find it, ask a trusted person or your mobile provider for help."
+            ];
+        callResultTitle.textContent = isIphone
+          ? "On iPhone: block from your recent calls."
+          : "On Android: block from your call history.";
+        callSteps.replaceChildren();
+        steps.forEach((step) => {
+          const item = document.createElement("li");
+          item.textContent = step;
+          callSteps.append(item);
+        });
+        callResult.hidden = false;
+        callResult.focus();
+      });
+
+      assistantForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const message = assistantInput.value.trim();
+        if (!message) {
+          assistantInput.setCustomValidity("Please describe the call or paste the message first.");
+          assistantInput.reportValidity();
+          return;
+        }
+        assistantInput.setCustomValidity("");
+
+        const addMessage = (speaker, text, type) => {
+          const bubble = document.createElement("div");
+          bubble.className = `chat-message ${type}`;
+          const label = document.createElement("strong");
+          label.textContent = speaker;
+          const content = document.createElement("p");
+          content.textContent = text;
+          bubble.append(label, content);
+          assistantChat.append(bubble);
+        };
+
+        const normalizedMessage = message.toLowerCase();
+        const warningGroups = [
+          {
+            pattern: /\b(urgent|immediately|right away|act now|today only|within \d+ hours?|final warning|account (?:is )?(?:blocked|suspended|closed)|do not tell|keep (?:this )?secret)\b/,
+            note: "It uses pressure, urgency, or secrecy."
+          },
+          {
+            pattern: /\b(password|passcode|pin\b|one[- ]time (?:password|code|passcode)|verification code|security code|otp|remote access)\b/,
+            note: "It mentions a password, PIN, verification code, or remote access."
+          },
+          {
+            pattern: /\b(safe account|transfer (?:the )?money|move (?:your )?money|gift cards?|cryptocurrency|crypto currency|bitcoin|pay (?:a )?(?:fee|fine|tax|customs)|send (?:me )?money)\b/,
+            note: "It mentions a money transfer, unusual payment, or gift card."
+          },
+          {
+            pattern: /\b(click|tap|open|follow)\b.{0,45}\b(link|attachment|url)\b|\b(link|attachment|url)\b.{0,45}\b(click|tap|open|follow)\b/,
+            note: "It asks you to open or follow a link or attachment."
+          }
+        ];
+        const warnings = warningGroups
+          .filter((group) => group.pattern.test(normalizedMessage))
+          .map((group) => group.note);
+        const containsWebAddress = /\b(?:https?:\/\/|www\.)\S+/i.test(message);
+
+        let advice;
+        if (warnings.length) {
+          advice = `I noticed ${warnings.length === 1 ? "a possible warning sign" : "possible warning signs"}:\n${warnings.map((warning) => `• ${warning}`).join("\n")}\n\nDo not reply, click, share a code, or send money yet. Contact the person or organisation using a number you already trust. This quick check cannot prove whether it is a scam.`;
+        } else if (containsWebAddress) {
+          advice = "This message contains a web address. I cannot verify or open links. Do not tap an unexpected link; visit the organisation’s known website yourself or use the separate link-check tool on this page. A clean-looking address is not proof it is safe.";
+        } else {
+          advice = "I did not spot those common warning phrases, but that does not mean the call or message is genuine. If it was unexpected, asks for money or personal details, or makes you uneasy, pause and check through a trusted phone number. You can ask someone you trust to look with you.";
+        }
+
+        addMessage("You", message, "person");
+        addMessage("Pause & Check", advice, "assistant");
+        assistantInput.value = "";
+        assistantChat.scrollTop = assistantChat.scrollHeight;
+        assistantInput.focus();
+      });
+
+      assistantInput.addEventListener("input", () => assistantInput.setCustomValidity(""));
+
+      suggestionButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          assistantInput.value = button.dataset.prompt;
+          assistantInput.focus();
+        });
+      });
+
+      readButton.addEventListener("click", () => {
+        if (!("speechSynthesis" in window)) {
+          readButton.textContent = "Read aloud is not available in this browser";
+          readButton.disabled = true;
+          return;
+        }
+        if (window.speechSynthesis.speaking) {
+          window.speechSynthesis.cancel();
+          readButton.textContent = "🔊 Read this page";
+          readButton.setAttribute("aria-pressed", "false");
+          return;
+        }
+        const utterance = new SpeechSynthesisUtterance(document.querySelector("main").innerText);
+        utterance.rate = 0.88;
+        utterance.onend = () => {
+          readButton.textContent = "🔊 Read this page";
+          readButton.setAttribute("aria-pressed", "false");
+        };
+        utterance.onerror = () => {
+          readButton.textContent = "🔊 Read this page";
+          readButton.setAttribute("aria-pressed", "false");
+        };
+        window.speechSynthesis.speak(utterance);
+        readButton.textContent = "■ Stop reading";
+        readButton.setAttribute("aria-pressed", "true");
+      });
+    })();
+  </script>
+</body>
+</html>
